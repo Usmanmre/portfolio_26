@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
-import { Mail, GitBranch, Users, Send, Compass, CheckCircle2, AlertCircle } from 'lucide-react';
-import { submitContactForm } from '../api/contact';
+import React from 'react';
+import { Mail, GitBranch, Users, Compass } from 'lucide-react';
 
 const WHATSAPP_NUMBER = '923315938459';
 const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
@@ -14,36 +13,6 @@ const WhatsAppIcon = ({ size = 20 }: { size?: number }) => (
 );
 
 export const Contact: React.FC = () => {
-  const [formState, setFormState] = useState({
-    name: '',
-    email: '',
-    message: ''
-  });
-
-  const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
-  const [errorMessage, setErrorMessage] = useState('');
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formState.name || !formState.email || !formState.message) {
-      setErrorMessage('Please fill out all fields.');
-      setStatus('error');
-      return;
-    }
-
-    setStatus('sending');
-    setErrorMessage('');
-
-    try {
-      await submitContactForm(formState);
-      setStatus('success');
-      setFormState({ name: '', email: '', message: '' });
-    } catch {
-      setErrorMessage('Unable to send your message right now. Please try again in a moment.');
-      setStatus('error');
-    }
-  };
-
   return (
     <section id="contact" className="contact-section">
 
