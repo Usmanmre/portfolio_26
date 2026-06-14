@@ -73,7 +73,7 @@ With experience across SaaS, healthcare, AI, and real-time systems, I build prod
 
     <div className="json-indent">
       <span className="json-key">"role"</span>:
-      <span className="json-val">"Full-Stack Engineer"</span>,
+      <span className="json-val">"Full-Stack AI Engineer"</span>,
       <br />
 
       <span className="json-key">"experience"</span>:

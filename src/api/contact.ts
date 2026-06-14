@@ -11,16 +11,15 @@ export async function submitContactForm(data: ContactFormData): Promise<void> {
     throw new Error('Contact form URL is not configured.');
   }
 
-  // text/plain avoids a CORS preflight; Google Apps Script can't handle OPTIONS
-  const payload = JSON.stringify({
-    ...data,
-    submittedAt: new Date().toISOString(),
-  });
-
   const response = await fetch(formUrl, {
     method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: payload,
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      name: data.name,
+      email: data.email,
+      message: data.message,
+      submittedAt: new Date().toISOString(),
+    }),
   });
 
   if (!response.ok) {
