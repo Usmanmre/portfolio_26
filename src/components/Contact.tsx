@@ -46,7 +46,6 @@ export const Contact: React.FC = () => {
 
   return (
     <section id="contact" className="contact-section">
-      <div className="ambient-glow contact-glow"></div>
 
       <div className="grid-container">
         <div className="contact-layout">
@@ -82,99 +81,14 @@ export const Contact: React.FC = () => {
             </div>
           </div>
 
-          {/* Form Side */}
-          <div className="glass-card contact-form-card">
-            <form onSubmit={handleSubmit} className="contact-form">
-              <div className="form-group">
-                <label htmlFor="name" className="form-label">Full Name</label>
-                <input
-                  type="text"
-                  id="name"
-                  value={formState.name}
-                  onChange={(e) => {
-                    setFormState({ ...formState, name: e.target.value });
-                    if (status === 'error') setStatus('idle');
-                  }}
-                  className="form-input"
-                  placeholder="John Doe"
-                  disabled={status === 'sending'}
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="email" className="form-label">Email Address</label>
-                <input
-                  type="email"
-                  id="email"
-                  value={formState.email}
-                  onChange={(e) => {
-                    setFormState({ ...formState, email: e.target.value });
-                    if (status === 'error') setStatus('idle');
-                  }}
-                  className="form-input"
-                  placeholder="john@example.com"
-                  disabled={status === 'sending'}
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="message" className="form-label">Tell me about your project</label>
-                <textarea
-                  id="message"
-                  value={formState.message}
-                  onChange={(e) => {
-                    setFormState({ ...formState, message: e.target.value });
-                    if (status === 'error') setStatus('idle');
-                  }}
-                  className="form-input form-textarea"
-                  placeholder="Looking to optimize SaaS licensing, build a real-time speech agent..."
-                  rows={4}
-                  disabled={status === 'sending'}
-                ></textarea>
-              </div>
-
-              {/* Form Validation Feedback */}
-              {status === 'error' && (
-                <div className="form-feedback error-feedback">
-                  <AlertCircle size={16} />
-                  <span>{errorMessage}</span>
-                </div>
-              )}
-
-              {status === 'success' && (
-                <div className="form-feedback success-feedback">
-                  <CheckCircle2 size={16} />
-                  <span>Message sent successfully! Let's connect soon.</span>
-                </div>
-              )}
-
-              <button
-                type="submit"
-                className={`btn btn-primary form-submit-btn ${status === 'sending' ? 'loading' : ''}`}
-                disabled={status === 'sending'}
-              >
-                {status === 'sending' ? (
-                  <span>Sending Message...</span>
-                ) : (
-                  <>
-                      <span>Request Consultation</span>
-                    <Send size={16} />
-                  </>
-                )}
-              </button>
-            </form>
-          </div>
+          
         </div>
 
         {/* Footer info */}
         <footer className="footer-bar">
           <div className="footer-line"></div>
           <div className="footer-content">
-            <span className="footer-copy"></span>
-          
             <span className="footer-copy">© {new Date().getFullYear()}. All rights reserved.</span>
-            <span className="footer-copy"></span>
-
           </div>
         </footer>
       </div>
@@ -194,25 +108,20 @@ export const Contact: React.FC = () => {
         }
 
         .contact-layout {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 60px;
+          display: flex;
+          justify-content: center;
           align-items: center;
           margin-bottom: 80px;
-        }
-
-        @media (max-width: 900px) {
-          .contact-layout {
-            grid-template-columns: 1fr;
-            gap: 40px;
-          }
         }
 
         .contact-info {
           display: flex;
           flex-direction: column;
-          align-items: flex-start;
-          text-align: left;
+          align-items: center;
+          text-align: center;
+          max-width: 640px;
+          width: 100%;
+          margin: 0 auto;
         }
 
         .contact-title {
@@ -239,6 +148,7 @@ export const Contact: React.FC = () => {
           grid-template-columns: repeat(2, 1fr);
           gap: 16px;
           width: 100%;
+          max-width: 480px;
         }
 
         .social-link-btn {
@@ -368,12 +278,13 @@ export const Contact: React.FC = () => {
 
         .footer-content {
           display: flex;
-          justify-content: space-between;
+          justify-content: center;
           align-items: center;
           flex-wrap: wrap;
           gap: 16px;
           color: var(--text-muted);
           font-size: 0.85rem;
+          text-align: center;
         }
 
         .footer-brand {
