@@ -33,7 +33,7 @@ export const Hero: React.FC = () => {
           </div>
 
           <h1 className="hero-title">
-            Building Scalable SaaS, AI & Real-Time Systems
+          Building Healthcare, SaaS & AI Systems
           </h1>
 
           <p className="hero-subtitle">
