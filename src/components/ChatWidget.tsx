@@ -150,6 +150,14 @@ useEffect(() => {
         </span>
       </button>
 
+      {/* Animated label to attract attention when closed */}
+      {!open && (
+        <div className="chat-fab-label" aria-hidden="true">
+          <span className="chat-fab-label__bubble">Find answers fast</span>
+          <span className="chat-fab-label__ping" />
+        </div>
+      )}
+
       {/* Panel */}
       {open && (
         <div className="chat-panel" role="dialog" aria-label="Resume Assistant">
@@ -328,6 +336,54 @@ useEffect(() => {
           display: flex;
           align-items: center;
           justify-content: center;
+        }
+
+        /* floating label above the FAB */
+        .chat-fab-label {
+          position: fixed;
+          right: 24px; /* align with FAB */
+          bottom: 92px; /* sit above the FAB */
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+          z-index: 9998;
+          pointer-events: none;
+        }
+
+        .chat-fab-label__bubble {
+          background: linear-gradient(90deg, rgba(var(--accent-rgb), 0.12), rgba(255,255,255,0.02));
+          color: var(--text-primary, #f8fafc);
+          padding: 8px 12px;
+          border-radius: 999px;
+          font-size: 13px;
+          font-weight: 600;
+          box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+          transform-origin: bottom center;
+          animation: label-pop 2.6s ease-in-out infinite;
+          pointer-events: auto;
+        }
+
+        .chat-fab-label__ping {
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          background: var(--accent);
+          box-shadow: 0 0 12px var(--accent-glow-strong);
+          animation: ping 1.8s infinite ease-in-out;
+        }
+
+        @keyframes ping {
+          0% { transform: scale(0.9); opacity: 0.95; }
+          50% { transform: scale(1.25); opacity: 0.55; }
+          100% { transform: scale(0.9); opacity: 0.95; }
+        }
+
+        @keyframes label-pop {
+          0% { transform: translateY(8px) scale(0.98); opacity: 0; }
+          8% { transform: translateY(0) scale(1.02); opacity: 1; }
+          30% { transform: translateY(0) scale(1); opacity: 1; }
+          100% { transform: translateY(0) scale(1); opacity: 1; }
         }
 
         /* ── Panel ── */
@@ -718,6 +774,10 @@ useEffect(() => {
             bottom: 80px;
             width: calc(100vw - 32px);
             height: calc(100vh - 100px);
+          }
+          /* hide the label on small screens to keep only the FAB visible */
+          .chat-fab-label {
+            display: none;
           }
         }
       `}</style>
