@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://https://usman-portfolio.forenex.org/api/:path*"
+      "destination": "https://usman-portfolio.forenex.org/api/:path*"
     }
   ]
 }
