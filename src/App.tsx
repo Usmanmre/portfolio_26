@@ -14,7 +14,14 @@ const App: React.FC = () => {
     // Apply data-theme attribute to body for global CSS variables matching
     document.body.setAttribute('data-theme', theme);
   }, [theme]);
-
+ 
+  useEffect(() => {
+    let sessionId = localStorage.getItem("session_id");
+    if (!sessionId) {
+      sessionId = `session-${Date.now()}`;
+      localStorage.setItem("session_id", sessionId);
+    }
+  }, []);
   return (
     <div className="portfolio-app">
       {/* Global Ambient Glow Nodes */}
