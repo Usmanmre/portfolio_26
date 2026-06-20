@@ -22,7 +22,6 @@ export const ChatWidget: React.FC = () => {
   const bodyRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const idRef = useRef<number>(1);
-const baseUrl = import.meta.env.VITE_LOCAL_HOST_URL;
 
 useEffect(() => {
     if (bodyRef.current) {
@@ -48,7 +47,7 @@ useEffect(() => {
     try {
 
 
-     const res = await fetch(`${baseUrl}/api/query`, {
+     const res = await fetch(`api/query`, {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
