@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { Room, RoomEvent, Track } from 'livekit-client';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 
 interface NavbarProps {
   currentTheme: string;
@@ -10,13 +11,14 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTheme, setTheme }) => {
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
 
-  const navItems = useMemo(() => [
-    { label: 'Home', href: '#home' },
-    { label: 'About', href: '#about' },
-    { label: 'Case Studies', href: '#projects' },
-    { label: 'Capabilities', href: '#stack' },
-    { label: 'Contact', href: '#contact' },
-  ], []);
+const navItems = useMemo(() => [
+  { label: 'Home', href: '#home' },
+  { label: 'About', href: '#about' },
+  { label: 'Case Studies', href: '#projects' },
+  { label: 'Capabilities', href: '#stack' },
+  { label: 'Contact', href: '#contact' },
+
+], []);
 
   const themes = useMemo(() => [
     { id: 'ultraviolet', name: 'Ultraviolet', color: '#7C3AED' },
@@ -48,6 +50,62 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTheme, setTheme }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [navItems]);
 
+  const roomRef = useRef<Room | null>(null);
+
+  const getLivekitToken = async () => {
+    try {
+      console.log('Fetching Livekit token...');
+      const apiBaseUrl = import.meta.env.VITE_URL_TOKEN_ENDPOINT ?? 'http://localhost:8000';
+      const response = await fetch(`${apiBaseUrl}/api/livekit/token`);
+      if (!response.ok) {
+        throw new Error(`Token request failed: ${response.status} ${response.statusText}`);
+      }
+
+      const { token, url, room } = await response.json();
+      console.log({ room });
+
+      const roomInstance = new Room();
+      roomRef.current = roomInstance;
+
+      // Register listeners BEFORE connecting so we never miss an early event.
+      roomInstance
+        .on(RoomEvent.ParticipantConnected, (participant) => {
+          console.log('Agent joined:', participant.identity);
+        })
+        .on(RoomEvent.TrackSubscribed, (track, _publication, participant) => {
+          console.log('Subscribed:', participant.identity, track.kind);
+          if (track.kind === Track.Kind.Audio) {
+            const audioEl = track.attach();
+            audioEl.autoplay = true;
+            document.body.appendChild(audioEl);
+            audioEl.play().catch((err) => console.error('Play failed', err));
+          }
+        })
+        .on(RoomEvent.LocalTrackPublished, (publication) => {
+          console.log('Local track published:', publication.kind, publication.trackSid);
+        });
+
+      await roomInstance.connect(url, token);
+
+      // setMicrophoneEnabled triggers getUserMedia + publishes the track.
+      // If the token lacks canPublish, or mic permission is denied, this throws.
+      await roomInstance.localParticipant.setMicrophoneEnabled(true);
+
+      // Confirm the mic actually captured a live track and is reaching the SFU.
+      const micPub = roomInstance.localParticipant.getTrackPublication(Track.Source.Microphone);
+      const mediaTrack = micPub?.track?.mediaStreamTrack;
+      console.log('isMicrophoneEnabled:', roomInstance.localParticipant.isMicrophoneEnabled);
+      console.log('mic publication sid:', micPub?.trackSid, 'muted:', micPub?.isMuted);
+      console.log(
+        'mic device:', mediaTrack?.label,
+        'readyState:', mediaTrack?.readyState,
+        'enabled:', mediaTrack?.enabled,
+      );
+    } catch (err) {
+      console.error('LiveKit connect/publish failed:', err);
+    }
+  };
+
 
   return (
     <header className={`nav-header ${scrolled ? 'nav-scrolled' : ''}`}>
@@ -72,7 +130,17 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTheme, setTheme }) => {
           ))}
         </nav>
 
-        
+        <button className="talk-agent-btn" onClick={getLivekitToken} aria-label="Talk to AI Agent">
+          <span className="talk-agent-pulse" aria-hidden="true"></span>
+          <svg className="talk-agent-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+            <line x1="12" y1="19" x2="12" y2="23" />
+            <line x1="8" y1="23" x2="16" y2="23" />
+          </svg>
+          <span className="talk-agent-label">Talk to AI Agent</span>
+        </button>
+
       </div>
 
       {/* Mobile Nav Overlay */}
@@ -211,6 +279,94 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTheme, setTheme }) => {
 
         .nav-item.active::after, .nav-item:hover::after {
           width: 60%;
+        }
+
+        /* Attention-grabbing "Talk to AI Agent" CTA */
+        .talk-agent-btn {
+          position: relative;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 11px 22px;
+          border: none;
+          border-radius: 30px;
+          background: linear-gradient(135deg, var(--accent), var(--accent-glow-strong, var(--accent)));
+          color: #fff;
+          font-family: var(--font-heading);
+          font-size: 0.95rem;
+          font-weight: 700;
+          letter-spacing: 0.01em;
+          cursor: pointer;
+          white-space: nowrap;
+          box-shadow: 0 0 0 0 var(--accent), 0 8px 24px -6px var(--accent);
+          animation: talk-agent-glow 2.4s ease-in-out infinite;
+          transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+        }
+
+        .talk-agent-btn:hover {
+          transform: translateY(-2px) scale(1.03);
+          filter: brightness(1.08);
+        }
+
+        .talk-agent-btn:active {
+          transform: translateY(0) scale(0.99);
+        }
+
+        .talk-agent-btn:focus-visible {
+          outline: none;
+          box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.6), 0 8px 24px -6px var(--accent);
+        }
+
+        .talk-agent-icon {
+          width: 18px;
+          height: 18px;
+          flex-shrink: 0;
+        }
+
+        /* Pulsing ring that radiates outward to draw the eye */
+        .talk-agent-pulse {
+          position: absolute;
+          inset: 0;
+          border-radius: inherit;
+          background: var(--accent);
+          z-index: -1;
+          animation: talk-agent-ping 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+
+        @keyframes talk-agent-glow {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.5), 0 8px 24px -6px var(--accent); }
+          50% { box-shadow: 0 0 0 6px rgba(124, 58, 237, 0), 0 8px 28px -4px var(--accent); }
+        }
+
+        @keyframes talk-agent-ping {
+          0% { transform: scale(1); opacity: 0.5; }
+          70%, 100% { transform: scale(1.35); opacity: 0; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .talk-agent-btn { animation: none; }
+          .talk-agent-pulse { animation: none; display: none; }
+        }
+
+        /* Mobile: keep the CTA prominent and never let it shrink away */
+        @media (max-width: 768px) {
+          .talk-agent-btn {
+            padding: 10px 18px;
+            font-size: 0.9rem;
+          }
+        }
+
+        @media (max-width: 380px) {
+          .talk-agent-btn {
+            padding: 10px 16px;
+          }
+          .talk-agent-label {
+            display: none;
+          }
+          .talk-agent-icon {
+            width: 20px;
+            height: 20px;
+          }
         }
 
         .nav-actions {
