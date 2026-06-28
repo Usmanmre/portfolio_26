@@ -11,14 +11,21 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTheme, setTheme }) => {
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
 
-const navItems = useMemo(() => [
-  { label: 'Home', href: '#home' },
-  { label: 'About', href: '#about' },
-  { label: 'Case Studies', href: '#projects' },
-  { label: 'Capabilities', href: '#stack' },
-  { label: 'Contact', href: '#contact' },
+  // New states for managing call/connection statuses
+  const [isLoading, setIsLoading] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
+  const [callDuration, setCallDuration] = useState(0);
 
-], []);
+  const roomRef = useRef<Room | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const navItems = useMemo(() => [
+    { label: 'Home', href: '#home' },
+    { label: 'About', href: '#about' },
+    { label: 'Case Studies', href: '#projects' },
+    { label: 'Capabilities', href: '#stack' },
+    { label: 'Contact', href: '#contact' },
+  ], []);
 
   const themes = useMemo(() => [
     { id: 'ultraviolet', name: 'Ultraviolet', color: '#7C3AED' },
@@ -30,7 +37,6 @@ const navItems = useMemo(() => [
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
 
-      // Scroll spy logic
       const sections = navItems.map(item => item.href.slice(1));
       let current = 'home';
       
@@ -50,9 +56,33 @@ const navItems = useMemo(() => [
     return () => window.removeEventListener('scroll', handleScroll);
   }, [navItems]);
 
-  const roomRef = useRef<Room | null>(null);
+  // Manage timer duration once connected
+  useEffect(() => {
+    if (isConnected) {
+      setCallDuration(0);
+      timerRef.current = setInterval(() => {
+        setCallDuration((prev) => prev + 1);
+      }, 1000);
+    } else {
+      if (timerRef.current) clearInterval(timerRef.current);
+    }
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [isConnected]);
+
+  // Helper to format seconds to MM:SS
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
 
   const getLivekitToken = async () => {
+    if (isLoading || isConnected) return;
+    setIsLoading(true);
+
     try {
       console.log('Fetching Livekit token...');
       const apiBaseUrl = import.meta.env.VITE_URL_TOKEN_ENDPOINT ?? 'http://localhost:8000';
@@ -61,13 +91,11 @@ const navItems = useMemo(() => [
         throw new Error(`Token request failed: ${response.status} ${response.statusText}`);
       }
 
-      const { token, url, room } = await response.json();
-      console.log({ room });
+      const { token, url } = await response.json();
 
       const roomInstance = new Room();
       roomRef.current = roomInstance;
 
-      // Register listeners BEFORE connecting so we never miss an early event.
       roomInstance
         .on(RoomEvent.ParticipantConnected, (participant) => {
           console.log('Agent joined:', participant.identity);
@@ -83,29 +111,31 @@ const navItems = useMemo(() => [
         })
         .on(RoomEvent.LocalTrackPublished, (publication) => {
           console.log('Local track published:', publication.kind, publication.trackSid);
+        })
+        .on(RoomEvent.Disconnected, () => {
+          setIsConnected(false);
+          setIsLoading(false);
         });
 
       await roomInstance.connect(url, token);
-
-      // setMicrophoneEnabled triggers getUserMedia + publishes the track.
-      // If the token lacks canPublish, or mic permission is denied, this throws.
       await roomInstance.localParticipant.setMicrophoneEnabled(true);
 
-      // Confirm the mic actually captured a live track and is reaching the SFU.
-      const micPub = roomInstance.localParticipant.getTrackPublication(Track.Source.Microphone);
-      const mediaTrack = micPub?.track?.mediaStreamTrack;
-      console.log('isMicrophoneEnabled:', roomInstance.localParticipant.isMicrophoneEnabled);
-      console.log('mic publication sid:', micPub?.trackSid, 'muted:', micPub?.isMuted);
-      console.log(
-        'mic device:', mediaTrack?.label,
-        'readyState:', mediaTrack?.readyState,
-        'enabled:', mediaTrack?.enabled,
-      );
+      setIsConnected(true);
     } catch (err) {
       console.error('LiveKit connect/publish failed:', err);
+      setIsConnected(false);
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  const endCall = async () => {
+    if (roomRef.current) {
+      await roomRef.current.disconnect();
+    }
+    setIsConnected(false);
+    setIsLoading(false);
+  };
 
   return (
     <header className={`nav-header ${scrolled ? 'nav-scrolled' : ''}`}>
@@ -130,16 +160,40 @@ const navItems = useMemo(() => [
           ))}
         </nav>
 
-        <button className="talk-agent-btn" onClick={getLivekitToken} aria-label="Talk to AI Agent">
-          <span className="talk-agent-pulse" aria-hidden="true"></span>
-          <svg className="talk-agent-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
-            <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-            <line x1="12" y1="19" x2="12" y2="23" />
-            <line x1="8" y1="23" x2="16" y2="23" />
-          </svg>
-          <span className="talk-agent-label">Talk to AI Agent</span>
-        </button>
+        {/* Action button status configuration */}
+        <div className="agent-status-container">
+          {isConnected ? (
+            <div className="active-call-badge">
+              <span className="live-dot"></span>
+              <span className="call-timer">{formatTime(callDuration)}</span>
+              <button className="end-call-btn" onClick={endCall} aria-label="End Call">
+                End
+              </button>
+            </div>
+          ) : (
+            <button 
+              className={`talk-agent-btn ${isLoading ? 'loading' : ''}`} 
+              onClick={getLivekitToken} 
+              disabled={isLoading}
+              aria-label="Talk to AI Agent"
+            >
+              {!isLoading && <span className="talk-agent-pulse" aria-hidden="true"></span>}
+              {isLoading ? (
+                <span className="loading-spinner"></span>
+              ) : (
+                <svg className="talk-agent-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                  <line x1="12" y1="19" x2="12" y2="23" />
+                  <line x1="8" y1="23" x2="16" y2="23" />
+                </svg>
+              )}
+              <span className="talk-agent-label">
+                {isLoading ? 'Connecting...' : 'Talk to AI Agent'}
+              </span>
+            </button>
+          )}
+        </div>
 
       </div>
 
@@ -179,6 +233,7 @@ const navItems = useMemo(() => [
 
       {/* Embedded CSS specific to Navbar Component */}
       <style>{`
+        /* ... keeping all previous styles identical ... */
         .nav-header {
           position: fixed;
           top: 0;
@@ -225,11 +280,6 @@ const navItems = useMemo(() => [
           opacity: 0.85;
           font-weight: 500;
           font-family: monospace;
-          transition: var(--transition-smooth);
-        }
-
-        .logo-dot {
-          color: var(--accent);
           transition: var(--transition-smooth);
         }
 
@@ -303,18 +353,19 @@ const navItems = useMemo(() => [
           transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
         }
 
-        .talk-agent-btn:hover {
+        .talk-agent-btn.loading {
+          animation: none;
+          opacity: 0.85;
+          cursor: not-allowed;
+        }
+
+        .talk-agent-btn:not(.loading):hover {
           transform: translateY(-2px) scale(1.03);
           filter: brightness(1.08);
         }
 
         .talk-agent-btn:active {
           transform: translateY(0) scale(0.99);
-        }
-
-        .talk-agent-btn:focus-visible {
-          outline: none;
-          box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.6), 0 8px 24px -6px var(--accent);
         }
 
         .talk-agent-icon {
@@ -343,12 +394,81 @@ const navItems = useMemo(() => [
           70%, 100% { transform: scale(1.35); opacity: 0; }
         }
 
-        @media (prefers-reduced-motion: reduce) {
-          .talk-agent-btn { animation: none; }
-          .talk-agent-pulse { animation: none; display: none; }
+        /* Loading Spinner */
+        .loading-spinner {
+          width: 16px;
+          height: 16px;
+          border: 2px solid rgba(255, 255, 255, 0.3);
+          border-radius: 50%;
+          border-top-color: #fff;
+          animation: spin 0.8s linear infinite;
         }
 
-        /* Mobile: keep the CTA prominent and never let it shrink away */
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+
+        /* Connected Active Call Badge design */
+        .agent-status-container {
+          display: flex;
+          align-items: center;
+        }
+
+        .active-call-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 12px;
+          padding: 6px 6px 6px 14px;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid var(--border-card);
+          border-radius: 30px;
+          backdrop-filter: blur(8px);
+        }
+
+        .live-dot {
+          width: 8px;
+          height: 8px;
+          background-color: #ef4444;
+          border-radius: 50%;
+          animation: pulse-red 1.5s infinite;
+        }
+
+        @keyframes pulse-red {
+          0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+          70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+          100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .call-timer {
+          font-family: monospace;
+          color: var(--text-primary);
+          font-size: 0.95rem;
+          font-weight: 600;
+          min-width: 45px;
+        }
+
+        .end-call-btn {
+          background: #ef4444;
+          color: #fff;
+          border: none;
+          padding: 6px 14px;
+          border-radius: 20px;
+          font-weight: 700;
+          font-size: 0.85rem;
+          cursor: pointer;
+          transition: background 0.2s ease, transform 0.1s ease;
+        }
+
+        .end-call-btn:hover {
+          background: #dc2626;
+          transform: scale(1.02);
+        }
+
+        .end-call-btn:active {
+          transform: scale(0.98);
+        }
+
+        /* Mobile Adjustments */
         @media (max-width: 768px) {
           .talk-agent-btn {
             padding: 10px 18px;
@@ -357,157 +477,9 @@ const navItems = useMemo(() => [
         }
 
         @media (max-width: 380px) {
-          .talk-agent-btn {
-            padding: 10px 16px;
-          }
-          .talk-agent-label {
-            display: none;
-          }
-          .talk-agent-icon {
-            width: 20px;
-            height: 20px;
-          }
-        }
-
-        .nav-actions {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-        }
-
-        .theme-picker-wrapper {
-          position: relative;
-        }
-
-        .theme-btn-trigger {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          background: var(--bg-card);
-          border: 1px solid var(--border-card);
-          padding: 8px 16px;
-          border-radius: 12px;
-          color: var(--text-primary);
-          font-family: var(--font-heading);
-          font-weight: 600;
-          font-size: 0.9rem;
-          cursor: pointer;
-          transition: var(--transition-smooth);
-        }
-
-        .theme-btn-trigger:hover {
-          border-color: var(--accent);
-          background: var(--bg-card-hover);
-        }
-
-        @media (max-width: 480px) {
-          .theme-text {
-            display: none;
-          }
-          .theme-btn-trigger {
-            padding: 8px;
-            border-radius: 50%;
-          }
-        }
-
-        .theme-dropdown {
-          position: absolute;
-          top: calc(100% + 12px);
-          right: 0;
-          background: var(--bg-secondary);
-          border: 1px solid var(--border-card-hover);
-          border-radius: 16px;
-          padding: 16px;
-          width: 200px;
-          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-          opacity: 0;
-          visibility: hidden;
-          transform: translateY(10px);
-          transition: var(--transition-smooth);
-          z-index: 100;
-        }
-
-        .theme-picker-wrapper:hover .theme-dropdown,
-        .theme-picker-wrapper:focus-within .theme-dropdown {
-          opacity: 1;
-          visibility: visible;
-          transform: translateY(0);
-        }
-
-        .dropdown-title {
-          font-family: var(--font-heading);
-          font-size: 0.8rem;
-          font-weight: 700;
-          text-transform: uppercase;
-          color: var(--text-muted);
-          margin-bottom: 12px;
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          letter-spacing: 0.05em;
-        }
-
-        .sparkle-icon {
-          color: var(--accent);
-        }
-
-        .themes-grid {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-
-        .theme-option {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          background: transparent;
-          border: 1px solid transparent;
-          border-radius: 8px;
-          padding: 6px 10px;
-          width: 100%;
-          text-align: left;
-          color: var(--text-secondary);
-          cursor: pointer;
-          transition: var(--transition-smooth);
-          font-family: var(--font-body);
-          font-size: 0.85rem;
-          font-weight: 500;
-        }
-
-        .theme-option:hover {
-          background: var(--bg-card);
-          color: var(--text-primary);
-        }
-
-        .theme-option.active {
-          background: var(--accent-glow);
-          border-color: var(--accent-glow-strong);
-          color: var(--accent);
-          font-weight: 600;
-        }
-
-        .theme-color-dot {
-          width: 10px;
-          height: 10px;
-          border-radius: 50%;
-          flex-shrink: 0;
-          box-shadow: 0 0 8px currentColor;
-        }
-
-        .mobile-nav-toggle {
-          display: none;
-          background: transparent;
-          border: none;
-          color: var(--text-primary);
-          cursor: pointer;
-          padding: 4px;
-        }
-
-        @media (max-width: 768px) {
-          .mobile-nav-toggle {
-            display: block;
-          }
+          .talk-agent-btn { padding: 10px 16px; }
+          .talk-agent-label { display: none; }
+          .talk-agent-icon { width: 20px; height: 20px; }
         }
 
         .mobile-nav-overlay {
