@@ -17,7 +17,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTheme, setTheme }) => {
   const [callDuration, setCallDuration] = useState(0);
 
   const roomRef = useRef<Room | null>(null);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+const timerRef = useRef<number | null>(null);
 
   const navItems = useMemo(() => [
     { label: 'Home', href: '#home' },
@@ -57,20 +57,24 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTheme, setTheme }) => {
   }, [navItems]);
 
   // Manage timer duration once connected
-  useEffect(() => {
-    if (isConnected) {
-      setCallDuration(0);
-      timerRef.current = setInterval(() => {
-        setCallDuration((prev) => prev + 1);
-      }, 1000);
-    } else {
-      if (timerRef.current) clearInterval(timerRef.current);
-    }
+// Manage timer duration once connected
+useEffect(() => {
+  if (isConnected) {
+    // Start interval immediately and ensure the initial state aligns
+    timerRef.current = window.setInterval(() => {
+      setCallDuration((prev) => prev + 1);
+    }, 1000);
+  }
 
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [isConnected]);
+  // Cleanup clears interval and resets duration cleanly when disconnected
+  return () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    setCallDuration(0); // Safe to reset state on cleanup/unmount
+  };
+}, [isConnected]);
 
   // Helper to format seconds to MM:SS
   const formatTime = (seconds: number) => {
