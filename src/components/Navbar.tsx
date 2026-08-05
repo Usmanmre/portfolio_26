@@ -89,7 +89,7 @@ useEffect(() => {
 
     try {
       console.log('Fetching Livekit token...');
-      const apiBaseUrl = import.meta.env.VITE_URL_TOKEN_ENDPOINT ?? 'http://localhost:8000';
+      const apiBaseUrl = 'http://localhost:8000';
       const response = await fetch(`${apiBaseUrl}/api/livekit/token`);
       if (!response.ok) {
         throw new Error(`Token request failed: ${response.status} ${response.statusText}`);

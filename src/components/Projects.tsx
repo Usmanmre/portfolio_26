@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Bot, Briefcase, Zap, Shield } from 'lucide-react';
+import { Bot, Zap, Shield, Building2, ChevronDown, ArrowUpRight } from 'lucide-react';
 
 interface Project {
   id: string;
   title: string;
-  category: 'saas' | 'ai-voice' | 'branding';
+  category: 'saas' | 'ai-voice' | 'branding' | 'real-estate';
   description: string;
   highlight: string[];
   metrics?: string;
@@ -13,79 +13,99 @@ interface Project {
   linkText?: string;
 }
 
+const categoryMeta = {
+  'saas': { label: 'SaaS Product', icon: Zap, className: 'cat-saas' },
+  'ai-voice': { label: 'AI / Voice', icon: Bot, className: 'cat-ai-voice' },
+  'branding': { label: 'Branding', icon: Shield, className: 'cat-branding' },
+  'real-estate': { label: 'Real Estate', icon: Building2, className: 'cat-real-estate' },
+} as const;
+
 export const Projects: React.FC = () => {
-  const [filter, setFilter] = useState<'all' | 'saas' | 'ai-voice' | 'branding'>('all');
+  const [filter, setFilter] = useState<'all' | 'saas' | 'ai-voice' | 'real-estate'>('all');
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const projects: Project[] = [
-      {
-  id: 'nymbl',
-      title: 'Nymbl — Conversational AI Healthcare Platform',
+    {
+      id: 'real-estate-chatbot',
+      title: 'Forenex Real Estate — AI Chatbot for Listings',
+      category: 'real-estate',
+      description: 'An AI chatbot for real estate websites that answers buyer questions, qualifies leads, and books viewings — around the clock, no agent required.',
+      highlight: ['React.js', 'Node.js', 'OpenAI', 'Embeddings', 'Real-Time Chat'],
+      metrics: '24/7 Lead Capture',
+      link: 'https://real-estate.forenex.org/',
+      details: [
+        'Built a chatbot that understands questions about specific listings — price, location, features — and answers instantly instead of making buyers wait for an agent.',
+        'Set up lead qualification inside the chat, so agents only get pinged for buyers who are actually ready to move forward.',
+        'Connected the bot to booking so a serious buyer can schedule a viewing without leaving the conversation.',
+      ],
+    },
+    {
+      id: 'nymbl',
+      title: 'Nymbl — AI Voice Agent for Patient Booking',
       category: 'ai-voice',
-      description: 'Conversational AI platform powering chatbots and real-time voice agents for automated patient appointment scheduling.',
+      description: 'An AI voice agent that answers calls and books patient appointments for healthcare clinics — no receptionist needed.',
       highlight: ['NestJS', 'PostgreSQL', 'SIP', 'LiveKit', 'Python'],
       metrics: '99.9% Booking Accuracy',
-     link: 'https://www.getnymbl.ai/',
-     details: [
-    'Built production-grade speech-to-text workflows integrated with LiveKit SDK and backend APIs to enable real-time, context-aware healthcare conversations.',
-    'Implemented low-latency voice communication using SIP protocol and LiveKit for automated patient appointment booking across live audio streams.',
-    'Designed multi-step appointment orchestration flows integrated with clinic scheduling systems and APIs.',
-  ],
+      link: 'https://www.getnymbl.ai/',
+      details: [
+        'Built real-time speech-to-text voice conversations using LiveKit, so the agent understands and responds during live calls.',
+        'Set up SIP-based calling so the agent can answer real phone lines with low delay.',
+        'Connected the agent directly to clinic scheduling systems, so bookings land straight on the calendar.',
+      ],
     },
-  {
+    {
       id: 'syntera',
-      title: 'Syntera Automation — Care Tracking & STT',
+      title: 'Syntera — Voice-to-Text Care Documentation',
       category: 'saas',
-      description: 'Healthcare workflow tracker enabling nursing staff to document resident care via real-time speech-to-text dictation and WebSockets.',
+      description: 'Lets nursing staff dictate patient notes out loud instead of typing them, cutting documentation time roughly in half.',
       highlight: ['React.js', 'NestJS', 'PostgreSQL', 'WebSockets', 'Speech-to-Text'],
       metrics: '-50% Manual Entry Time',
       link: '#syntera',
       details: [
-        'Designed and shipped a speech-to-text nursing documentation system, saving care staff ~50% in daily report logging time.',
-        'Implemented WebSocket channels for real-time patient status updates.',
-      ]
+        'Built a speech-to-text system for nursing documentation, cutting daily reporting time by about 50%.',
+        'Added live WebSocket updates so patient status changes show up instantly for the whole care team.',
+      ],
     },
-        {
+    {
       id: 'perfai',
-      title: 'PerfAi — API Performance & Security Suite',
+      title: 'PerfAi — API Security & Performance Monitoring',
       category: 'saas',
-  description: 'A production SaaS product delivering continuous API security audits, automated testing, and performance streaming to reduce incidents and cost.' ,
+      description: 'A SaaS product that watches your APIs around the clock, catching security issues and slowdowns before customers notice.',
       highlight: ['Vue.js', 'NestJS', 'MongoDB', 'Server-Sent Events (SSE)'],
       metrics: '+20% App Performance',
       link: 'https://perfai.ai/',
       details: [
-        'Owned core backend & frontend features; optimizations reduced overall application loading delay by 20%.',
-        'Implemented Server-Sent Events (SSE) for concurrent data streams, reducing sync latency by ~30%.',
-  'Integrated GitHub Actions, Jira, and Slack to streamline incident response and product telemetry workflows.'
-      ]
+        'Owned core backend and frontend features; my optimizations cut overall app load time by 20%.',
+        'Built live data streaming with Server-Sent Events, reducing sync delay by roughly 30%.',
+        'Connected GitHub Actions, Jira, and Slack so incidents get flagged and routed automatically.',
+      ],
     },
     {
       id: 'forenex',
-      title: 'Forenex — Early Burnout & Workforce Intelligence',
+      title: 'Forenex — Early Burnout Detection for Teams',
       category: 'saas',
-      description: 'An AI-driven SaaS visibility and performance platform that analyzes task activity and engagement signals to help team leaders optimize utilization and prevent burnout.',
-  highlight: ['Next.js', 'Node.js', 'Predictive AI', 'Scalable Cloud Architectures'],
+      description: 'AI-driven SaaS platform that reads task activity and engagement patterns to flag burnout risk before it costs you a team member.',
+      highlight: ['Next.js', 'Node.js', 'Predictive AI', 'Scalable Cloud Architectures'],
       metrics: 'Proactive Alert System',
       link: 'https://www.forenex.org/',
       details: [
-        'Built a real-time SaaS platform that analyzes task activity, engagement patterns, and workload signals to surface early indicators of employee burnout.',
-        'Designed task management workflows that double as passive health monitors, maintaining strict data privacy protocols.',
-        'Implemented role-based access control (RBAC) and secure authentication.'
-      ]
+        'Built a real-time platform that reads task activity, engagement, and workload signals to catch early burnout warning signs.',
+        'Designed everyday task workflows to double as passive wellbeing monitors, with strict data privacy built in.',
+        'Added role-based access control and secure authentication throughout.',
+      ],
     },
     {
       id: 'return-ai',
-      title: 'Return AI — E-Commerce Review Intelligence System',
+      title: 'Return AI — Ask Questions About Your Reviews',
       category: 'saas',
-      description: 'End-to-end RAG pipeline over e-commerce product reviews, enabling semantic search and context-aware Q&A on large review datasets.',
+      description: 'Lets e-commerce teams ask plain-English questions about thousands of customer reviews and get grounded, accurate answers back.',
       highlight: ['RAG Pipeline', 'Pinecone', 'OpenAI Embeddings', 'LangChain', 'Vector Database'],
       metrics: 'Semantic Review Search',
       details: [
-        'Built an end-to-end RAG pipeline over e-commerce product reviews, enabling semantic search and context-aware Q&A on large review datasets. Implemented vector embeddings and similarity search using Pinecone to retrieve relevant review context before LLM generation.',
-        'Designed the retrieval pipeline to reduce hallucination and ground AI responses in actual customer sentiment data.',
+        'Built a retrieval pipeline over large review datasets so the AI can search reviews by meaning, not just keywords.',
+        'Used Pinecone vector search to pull the most relevant reviews before generating an answer, keeping responses grounded in real customer feedback.',
       ],
     },
-
   ];
 
   const filteredProjects = filter === 'all'
@@ -102,19 +122,20 @@ export const Projects: React.FC = () => {
 
       <div className="grid-container">
         <div className="section-header">
-          <div className="badge section-badge">
-            <Briefcase size={12} style={{ marginRight: '6px' }} />
-            Case Studies
+          <div className="section-eyebrow">
+            <span className="eyebrow-line" />
+            Selected Work
           </div>
-          <h2 className="section-title">Selected Engagements & Measured Outcomes</h2>
+          <h2 className="section-title">What I've built — and what it delivered</h2>
           <p className="section-subtitle">
-            Real product problems solved: cost savings, performance gains, and measurable business impact.
+            Five production systems across healthcare, SaaS, and AI. Each one shipped
+            to fix a real problem, not just to look good in a portfolio.
           </p>
         </div>
 
         {/* Filter Navigation */}
         <div className="project-filters flex-center">
-          {(['all', 'saas', 'ai-voice'] as const).map((cat) => (
+          {(['all', 'real-estate', 'saas', 'ai-voice'] as const).map((cat) => (
             <button
               key={cat}
               onClick={() => {
@@ -123,54 +144,59 @@ export const Projects: React.FC = () => {
               }}
               className={`filter-btn ${filter === cat ? 'active' : ''}`}
             >
-              {cat === 'all' ? 'All Case Studies' : cat === 'saas' ? 'SaaS & Ops' : 'AI & Voice'}
+              {cat === 'all' ? 'All Projects' : cat === 'real-estate' ? 'Real Estate' : cat === 'saas' ? 'SaaS Products' : 'AI & Voice'}
             </button>
           ))}
         </div>
 
         {/* Grid Layout */}
         <div className="projects-grid">
-          {filteredProjects.map((p) => (
-            <div
-              key={p.id}
-              className={`glass-card project-card ${expandedId === p.id ? 'expanded' : ''}`}
-              onClick={() => toggleExpand(p.id)}
-            >
-              <div className="card-top">
-                <span className={`project-category-badge cat-${p.category}`}>
-                  {p.category === 'saas' ? <Zap size={10} /> : p.category === 'ai-voice' ? <Bot size={10} /> : <Shield size={10} />}
-                  {p.category.toUpperCase().replace('-', ' ')}
-                </span>
-                {p.metrics && <span className="project-metric-highlight">{p.metrics}</span>}
-              </div>
+          {filteredProjects.map((p) => {
+            const meta = categoryMeta[p.category];
+            const Icon = meta.icon;
+            const isExpanded = expandedId === p.id;
 
-              <h3 className="project-card-title">{p.title}</h3>
-              <p className="project-card-desc">{p.description}</p>
+            return (
+              <div
+                key={p.id}
+                className={`glass-card project-card ${isExpanded ? 'expanded' : ''}`}
+                onClick={() => toggleExpand(p.id)}
+              >
+                <div className="card-top">
+                  <span className={`project-category-badge ${meta.className}`}>
+                    <Icon size={10} />
+                    {meta.label}
+                  </span>
+                  {p.metrics && <span className="project-metric-highlight">{p.metrics}</span>}
+                </div>
 
-              <div className="project-highlights">
-                {p.highlight.map(h => (
-                  <span key={h} className="proj-highlight-pill">{h}</span>
-                ))}
-              </div>
+                <h3 className="project-card-title">{p.title}</h3>
+                <p className="project-card-desc">{p.description}</p>
 
-              {/* Expansion Details */}
-              <div className="project-details-drawer">
-                <div className="drawer-divider"></div>
-                <h5 className="details-header">Impact & Implementation:</h5>
-                <ul className="details-bullet-list">
-                  {p.details.map((detail, idx) => (
-                    <li key={idx}>{detail}</li>
+                <div className="project-highlights">
+                  {p.highlight.map(h => (
+                    <span key={h} className="proj-highlight-pill">{h}</span>
                   ))}
-                </ul>
-              </div>
+                </div>
 
-              <div className="card-footer-action">
-                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                  <button className="expand-trigger-btn">
-                    {expandedId === p.id ? 'Hide Details' : 'View Implementation Details'}
-                  </button>
-                  {p.link && (
-                    (p.link.startsWith('http')) ? (
+                {/* Expansion Details */}
+                <div className="project-details-drawer">
+                  <div className="drawer-divider"></div>
+                  <h5 className="details-header">How it works</h5>
+                  <ul className="details-bullet-list">
+                    {p.details.map((detail, idx) => (
+                      <li key={idx}>{detail}</li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="card-footer-action">
+                  <div className="card-footer-row">
+                    <button className="expand-trigger-btn">
+                      {isExpanded ? 'Hide details' : 'How it works'}
+                      <ChevronDown size={14} className={`expand-chevron ${isExpanded ? 'rotated' : ''}`} />
+                    </button>
+                    {p.link && p.link.startsWith('http') && (
                       <a
                         href={p.link}
                         className="card-link-btn"
@@ -178,27 +204,15 @@ export const Projects: React.FC = () => {
                         rel="noreferrer"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        {p.linkText || 'View'}
+                        {p.linkText || 'View live'}
+                        <ArrowUpRight size={14} />
                       </a>
-                    ) : (
-                      <button
-                        className="card-link-btn"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleExpand(p.id);
-                          // optional: scroll into view
-                          const el = document.getElementById(p.id);
-                          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        }}
-                      >
-                        {p.linkText || 'Read Case Study'}
-                      </button>
-                    )
-                  )}
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -211,6 +225,24 @@ export const Projects: React.FC = () => {
 
         .section-header .section-subtitle {
           margin-bottom: 28px;
+        }
+
+        .section-eyebrow {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          font-size: 0.75rem;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+          color: var(--text-muted);
+          font-weight: 600;
+          margin-bottom: 16px;
+        }
+
+        .eyebrow-line {
+          width: 28px;
+          height: 1px;
+          background: var(--accent);
         }
 
         .projects-glow {
@@ -270,6 +302,13 @@ export const Projects: React.FC = () => {
           align-items: flex-start;
           text-align: left;
           height: 100%;
+          transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+        }
+
+        .project-card:hover {
+          transform: translateY(-4px);
+          border-color: var(--accent);
+          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
         }
 
         .card-top {
@@ -305,6 +344,11 @@ export const Projects: React.FC = () => {
         .cat-branding {
           background: rgba(16, 185, 129, 0.1);
           color: #10b981;
+        }
+
+        .cat-real-estate {
+          background: var(--accent-glow-light);
+          color: var(--accent);
         }
 
         .project-metric-highlight {
@@ -395,6 +439,12 @@ export const Projects: React.FC = () => {
           width: 100%;
         }
 
+        .card-footer-row {
+          display: flex;
+          gap: 12px;
+          align-items: center;
+        }
+
         .expand-trigger-btn {
           background: transparent;
           border: none;
@@ -410,6 +460,14 @@ export const Projects: React.FC = () => {
           transition: var(--transition-smooth);
         }
 
+        .expand-chevron {
+          transition: transform 0.3s ease;
+        }
+
+        .expand-chevron.rotated {
+          transform: rotate(180deg);
+        }
+
         .project-card:hover .expand-trigger-btn {
           text-decoration: underline;
         }
@@ -417,7 +475,7 @@ export const Projects: React.FC = () => {
         .card-link-btn {
           display: inline-flex;
           align-items: center;
-          gap: 8px;
+          gap: 6px;
           padding: 8px 14px;
           border-radius: 10px;
           background: var(--bg-card);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Terminal, Cpu, ArrowUpRight, ShieldCheck, Zap } from 'lucide-react';
+import { ArrowUpRight, Zap } from 'lucide-react';
 
 export const Hero: React.FC = () => {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -17,111 +17,75 @@ export const Hero: React.FC = () => {
 
   return (
     <section id="home" className="hero-section flex-center">
-      {/* Background glow linked to mouse movement for interactive premium feel */}
+      {/* Two layered ambient glows for more depth than a single flat blob */}
       <div
-        className="hero-ambient-glow"
+        className="hero-ambient-glow glow-primary"
         style={{
           transform: `translate(${mousePos.x * 0.05}px, ${mousePos.y * 0.05}px)`
         }}
       />
+      <div
+        className="hero-ambient-glow glow-secondary"
+        style={{
+          transform: `translate(${mousePos.x * -0.03}px, ${mousePos.y * -0.03}px)`
+        }}
+      />
+      <div className="hero-grain" />
 
       <div className="grid-container hero-container">
         <div className="hero-content">
           <div className="badge hero-badge">
-            <Zap size={12} style={{ marginRight: '6px' }} />
-            Full-Stack AI Engineer
+            <span className="live-dot" />
+            Websites & AI Tools for Real Estate + SaaS
+
           </div>
 
           <h1 className="hero-title">
-          Building Healthcare, SaaS & AI Systems
+            Websites & AI Tools That Help You <span className="title-accent">Sell More, Faster</span>
           </h1>
 
           <p className="hero-subtitle">
-With experience across SaaS, healthcare, AI, and real-time systems, I build products that improve operations, enhance user experiences, and create measurable business value. From architecture and APIs to frontend experiences and deployment, I take ownership of the entire product lifecycle.          </p>
+            I build fast, reliable websites and AI-powered tools for real estate
+            and SaaS companies — so you get more leads, more sign-ups, and less
+            manual work. One person, start to finish: design, code, and launch.
+          </p>
 
           <div className="hero-actions">
             <a href="#projects" className="btn btn-primary">
-              Case Studies & Outcomes
+              See Case Studies
               <ArrowUpRight size={18} />
             </a>
             <a href="#contact" className="btn btn-secondary">
-              Request a Consultation
+              Book a Free Call
             </a>
           </div>
         </div>
 
-        {/* Visual Dashboard Card on the right */}
+        {/* Profile Image on the right */}
         <div className="hero-visual">
-          <div className="glass-card terminal-card">
-              <div className="terminal-header">
-              <div className="terminal-dots">
-                <span className="dot dot-red"></span>
-                <span className="dot dot-yellow"></span>
-                <span className="dot dot-green"></span>
-              </div>
-              <div className="terminal-title">about-me.json</div>
-              <Terminal size={14} className="terminal-icon" />
-            </div>
-
-            <div className="terminal-body">
-  <div className="terminal-line command">
-    <span className="term-prompt">$</span> GET /api/v1/about-me
-  </div>
-
-  <div className="terminal-output">
-    <span className="json-brace">{'{'}</span>
-
-    <div className="json-indent">
-      <span className="json-key">"role"</span>:
-      <span className="json-val">"Full-Stack AI Engineer"</span>,
-      <br />
-
-      <span className="json-key">"experience"</span>:
-      <span className="json-val">"3+ Years Building SaaS & AI Systems"</span>,
-      <br />
-
-      <span className="json-key">"focus"</span>:
-      <span className="json-val">"Scalable SaaS, Real-Time Apps, AI Workflows"</span>,
-      <br />
-
-      <span className="json-key">"impact"</span>:
-      <span className="json-brace">{'{'}</span>
-
-      <div className="json-indent-2">
-        <span className="json-key">"documentation_time"</span>:
-        <span className="json-val">"-50% via voice-first workflow"</span>,
-        <br />
-
-        <span className="json-key">"performance"</span>:
-        <span className="json-val">"+20% application speed improvements"</span>,
-        <br />
-
-        <span className="json-key">"real_time_systems"</span>:
-        <span className="json-val">"30% faster sync using event-driven architecture"</span>
-      </div>
-
-      <span className="json-brace">{'}'}</span>
-    </div>
-
-    <span className="json-brace">{'}'}</span>
-  </div>
-
-  <div className="terminal-line text-success">
-    <Cpu size={12} className="inline-icon" /> Systems: production-grade SaaS, AI, and real-time services shipped
-  </div>
-
-  <div className="terminal-line text-success">
-    <ShieldCheck size={12} className="inline-icon" /> Engineering focus: performance, scalability, and reliability
-  </div>
-</div>
+          <div className="profile-image-container">
+            <div className="image-frame-accent" />
+            <img
+              src="/usman4.jpeg"
+              alt="Usman - Full-Stack AI Engineer for Real Estate & SaaS"
+              className="profile-image"
+            />
+            {/* Black overlay for cinematic, premium feel */}
+            <div className="image-overlay" />
+            {/* <div className="image-caption glass-card">
+              <span className="caption-name">Usman</span>
+              <span className="caption-role">Full-Stack Engineer</span>
+            </div> */}
           </div>
 
           {/* Floaters */}
-       
-
-          <div className="metric-floater floater-2 glass-card">
+          <div className="metric-floater floater-1 glass-card">
             <div className="floater-num">99.9%</div>
-            <div className="floater-label">Service Reliability</div>
+            <div className="floater-label">Uptime, Every Launch</div>
+          </div>
+          <div className="metric-floater floater-2 glass-card">
+            <div className="floater-num">Real Estate</div>
+            <div className="floater-label">+ SaaS Focus</div>
           </div>
         </div>
       </div>
@@ -137,16 +101,38 @@ With experience across SaaS, healthcare, AI, and real-time systems, I build prod
 
         .hero-ambient-glow {
           position: absolute;
-          top: 15%;
-          right: 10%;
-          width: 600px;
-          height: 600px;
           border-radius: 50%;
-          background: radial-gradient(circle, var(--accent-glow) 0%, rgba(6, 6, 9, 0) 70%);
-          filter: blur(80px);
           pointer-events: none;
           z-index: 0;
           transition: transform 0.2s cubic-bezier(0.1, 0.8, 0.2, 1);
+        }
+
+        .glow-primary {
+          top: 10%;
+          right: 8%;
+          width: 600px;
+          height: 600px;
+          background: radial-gradient(circle, var(--accent-glow) 0%, rgba(6, 6, 9, 0) 70%);
+          filter: blur(80px);
+        }
+
+        .glow-secondary {
+          bottom: 5%;
+          left: 5%;
+          width: 380px;
+          height: 380px;
+          background: radial-gradient(circle, var(--accent-glow) 0%, rgba(6, 6, 9, 0) 70%);
+          filter: blur(100px);
+          opacity: 0.4;
+        }
+
+        .hero-grain {
+          position: absolute;
+          inset: 0;
+          z-index: 1;
+          pointer-events: none;
+          opacity: 0.035;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
         }
 
         .hero-container {
@@ -180,6 +166,25 @@ With experience across SaaS, healthcare, AI, and real-time systems, I build prod
 
         .hero-badge {
           margin-bottom: 24px;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .live-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: var(--accent);
+          box-shadow: 0 0 0 0 var(--accent);
+          animation: pulse-dot 2s infinite;
+          flex-shrink: 0;
+        }
+
+        @keyframes pulse-dot {
+          0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.25); }
+          70% { box-shadow: 0 0 0 6px rgba(255, 255, 255, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
         }
 
         .hero-title {
@@ -187,6 +192,19 @@ With experience across SaaS, healthcare, AI, and real-time systems, I build prod
           line-height: 1.15;
           margin-bottom: 24px;
           font-weight: 800;
+        }
+
+        .title-accent {
+          background: linear-gradient(100deg, var(--accent) 0%, #fff 60%, var(--accent) 100%);
+          background-size: 200% auto;
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+          animation: shine 6s linear infinite;
+        }
+
+        @keyframes shine {
+          to { background-position: 200% center; }
         }
 
         @media (max-width: 768px) {
@@ -234,108 +252,78 @@ With experience across SaaS, healthcare, AI, and real-time systems, I build prod
           }
         }
 
-        .terminal-card {
-          padding: 0;
+        .profile-image-container {
+          position: relative;
+          width: 100%;
+          max-width: 450px;
+          margin: 0 auto;
+          border-radius: 24px;
           overflow: hidden;
-          font-family: monospace;
-          background: rgba(10, 10, 15, 0.8);
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
           border: 1px solid var(--border-card);
+          transition: box-shadow 0.4s ease, transform 0.4s ease;
+          back
         }
 
-        .terminal-header {
-          background: rgba(20, 20, 30, 0.6);
-          border-bottom: 1px solid var(--border-card);
-          padding: 12px 18px;
+        .profile-image-container:hover {
+          box-shadow: 0 25px 70px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--accent);
+          transform: translateY(-4px);
+        }
+
+        .image-frame-accent {
+          position: absolute;
+          top: 14px;
+          left: 14px;
+          right: 14px;
+          bottom: 14px;
+          border: 1px solid rgba(255, 255, 255, 0.18);
+          border-radius: 14px;
+          z-index: 3;
+          pointer-events: none;
+        }
+
+        .profile-image {
+          width: 100%;
+          height: 100%;
+          display: block;
+          object-fit: cover;
+        }
+
+        /* Black overlay: bottom-weighted gradient + full tint for a cinematic, premium look */
+        .image-overlay {
+          position: absolute;
+          inset: 0;
+          z-index: 2;
+          background:
+            linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.15) 45%, rgba(0,0,0,0.75) 100%),
+            rgba(0, 0, 0, 0.18);
+          pointer-events: none;
+        }
+
+        .image-caption {
+          position: absolute;
+          left: 20px;
+          bottom: 20px;
+          z-index: 4;
+          padding: 10px 16px;
+          border-radius: 12px;
           display: flex;
-          align-items: center;
-          justify-content: space-between;
+          flex-direction: column;
+          gap: 2px;
         }
 
-        .terminal-dots {
-          display: flex;
-          gap: 6px;
-        }
-
-        .dot {
-          width: 10px;
-          height: 10px;
-          border-radius: 50%;
-        }
-
-        .dot-red { background: #ef4444; }
-        .dot-yellow { background: #f59e0b; }
-        .dot-green { background: #10b981; }
-
-        .terminal-title {
-          font-size: 0.75rem;
-          color: var(--text-muted);
-          font-family: var(--font-body);
-        }
-
-        .terminal-icon {
-          color: var(--text-muted);
-        }
-
-        .terminal-body {
-          padding: 20px;
-          font-size: 0.85rem;
-          text-align: left;
-          color: var(--text-secondary);
-        }
-
-        .terminal-line {
-          margin-bottom: 8px;
-          line-height: 1.5;
-        }
-
-        .command {
-          color: var(--text-primary);
-        }
-
-        .term-prompt {
-          color: var(--accent);
+        .caption-name {
+          font-family: var(--font-heading);
           font-weight: 700;
-          margin-right: 8px;
+          font-size: 0.95rem;
+          color: #fff;
+          line-height: 1.1;
         }
 
-        .terminal-output {
-          background: rgba(0, 0, 0, 0.2);
-          border-left: 2px solid var(--accent);
-          padding: 10px 14px;
-          margin-bottom: 12px;
-          border-radius: 4px;
-        }
-
-        .json-key {
-          color: #93c5fd;
-        }
-
-        .json-val {
-          color: #a7f3d0;
-        }
-
-        .json-brace {
-          color: #fca5a5;
-        }
-
-        .json-indent {
-          padding-left: 16px;
-        }
-
-        .json-indent-2 {
-          padding-left: 32px;
-        }
-
-        .text-success {
-          color: #10b981;
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          font-size: 0.8rem;
-        }
-
-        .inline-icon {
-          flex-shrink: 0;
+        .caption-role {
+          font-size: 0.7rem;
+          color: rgba(255, 255, 255, 0.7);
+          font-weight: 500;
         }
 
         .metric-floater {
