@@ -1,5 +1,5 @@
-import { Room, RoomEvent, Track } from 'livekit-client';
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+// import { Room, RoomEvent, Track } from 'livekit-client';
+import React, { useState, useEffect, useMemo } from 'react';
 
 interface NavbarProps {
   currentTheme: string;
@@ -12,12 +12,12 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTheme, setTheme }) => {
   const [activeSection, setActiveSection] = useState('home');
 
   // New states for managing call/connection statuses
-  const [isLoading, setIsLoading] = useState(false);
-  const [isConnected, setIsConnected] = useState(false);
-  const [callDuration, setCallDuration] = useState(0);
+  // const [isLoading, setIsLoading] = useState(false);
+  // const [isConnected, setIsConnected] = useState(false);
+  // const [callDuration, setCallDuration] = useState(0);
 
-  const roomRef = useRef<Room | null>(null);
-const timerRef = useRef<number | null>(null);
+  // const roomRef = useRef<Room | null>(null);
+// const timerRef = useRef<number | null>(null);
 
   const navItems = useMemo(() => [
     { label: 'Home', href: '#home' },
@@ -58,88 +58,88 @@ const timerRef = useRef<number | null>(null);
 
   // Manage timer duration once connected
 // Manage timer duration once connected
-useEffect(() => {
-  if (isConnected) {
-    // Start interval immediately and ensure the initial state aligns
-    timerRef.current = window.setInterval(() => {
-      setCallDuration((prev) => prev + 1);
-    }, 1000);
-  }
+// useEffect(() => {
+//   if (isConnected) {
+//     // Start interval immediately and ensure the initial state aligns
+//     timerRef.current = window.setInterval(() => {
+//       setCallDuration((prev) => prev + 1);
+//     }, 1000);
+//   }
 
   // Cleanup clears interval and resets duration cleanly when disconnected
-  return () => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-    setCallDuration(0); // Safe to reset state on cleanup/unmount
-  };
-}, [isConnected]);
+//   return () => {
+//     if (timerRef.current) {
+//       clearInterval(timerRef.current);
+//       timerRef.current = null;
+//     }
+//     setCallDuration(0); // Safe to reset state on cleanup/unmount
+//   };
+// }, [isConnected]);
 
   // Helper to format seconds to MM:SS
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
+  // const formatTime = (seconds: number) => {
+  //   const mins = Math.floor(seconds / 60);
+  //   const secs = seconds % 60;
+  //   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  // };
 
-  const getLivekitToken = async () => {
-    if (isLoading || isConnected) return;
-    setIsLoading(true);
+  // const getLivekitToken = async () => {
+  //   if (isLoading || isConnected) return;
+  //   setIsLoading(true);
 
-    try {
-      console.log('Fetching Livekit token...');
-      const apiBaseUrl = 'https://voice.forenex.org'; // Replace with your actual API base URL
-      const response = await fetch(`${apiBaseUrl}/api/livekit/token`);
-      if (!response.ok) {
-        throw new Error(`Token request failed: ${response.status} ${response.statusText}`);
-      }
+  //   try {
+  //     console.log('Fetching Livekit token...');
+  //     const apiBaseUrl = 'https://voice.forenex.org'; // Replace with your actual API base URL
+  //     const response = await fetch(`${apiBaseUrl}/api/livekit/token`);
+  //     if (!response.ok) {
+  //       throw new Error(`Token request failed: ${response.status} ${response.statusText}`);
+  //     }
 
-      const { token, url } = await response.json();
+  //     const { token, url } = await response.json();
 
-      const roomInstance = new Room();
-      roomRef.current = roomInstance;
+  //     const roomInstance = new Room();
+  //     roomRef.current = roomInstance;
 
-      roomInstance
-        .on(RoomEvent.ParticipantConnected, (participant) => {
-          console.log('Agent joined:', participant.identity);
-        })
-        .on(RoomEvent.TrackSubscribed, (track, _publication, participant) => {
-          console.log('Subscribed:', participant.identity, track.kind);
-          if (track.kind === Track.Kind.Audio) {
-            const audioEl = track.attach();
-            audioEl.autoplay = true;
-            document.body.appendChild(audioEl);
-            audioEl.play().catch((err) => console.error('Play failed', err));
-          }
-        })
-        .on(RoomEvent.LocalTrackPublished, (publication) => {
-          console.log('Local track published:', publication.kind, publication.trackSid);
-        })
-        .on(RoomEvent.Disconnected, () => {
-          setIsConnected(false);
-          setIsLoading(false);
-        });
+  //     roomInstance
+  //       .on(RoomEvent.ParticipantConnected, (participant) => {
+  //         console.log('Agent joined:', participant.identity);
+  //       })
+  //       .on(RoomEvent.TrackSubscribed, (track, _publication, participant) => {
+  //         console.log('Subscribed:', participant.identity, track.kind);
+  //         if (track.kind === Track.Kind.Audio) {
+  //           const audioEl = track.attach();
+  //           audioEl.autoplay = true;
+  //           document.body.appendChild(audioEl);
+  //           audioEl.play().catch((err) => console.error('Play failed', err));
+  //         }
+  //       })
+  //       .on(RoomEvent.LocalTrackPublished, (publication) => {
+  //         console.log('Local track published:', publication.kind, publication.trackSid);
+  //       })
+  //       .on(RoomEvent.Disconnected, () => {
+  //         setIsConnected(false);
+  //         setIsLoading(false);
+  //       });
 
-      await roomInstance.connect(url, token);
-      await roomInstance.localParticipant.setMicrophoneEnabled(true);
+  //     await roomInstance.connect(url, token);
+  //     await roomInstance.localParticipant.setMicrophoneEnabled(true);
 
-      setIsConnected(true);
-    } catch (err) {
-      console.error('LiveKit connect/publish failed:', err);
-      setIsConnected(false);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  //     setIsConnected(true);
+  //   } catch (err) {
+  //     console.error('LiveKit connect/publish failed:', err);
+  //     setIsConnected(false);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
-  const endCall = async () => {
-    if (roomRef.current) {
-      await roomRef.current.disconnect();
-    }
-    setIsConnected(false);
-    setIsLoading(false);
-  };
+  // const endCall = async () => {
+  //   if (roomRef.current) {
+  //     await roomRef.current.disconnect();
+  //   }
+  //   setIsConnected(false);
+  //   setIsLoading(false);
+  // };
 
   return (
     <header className={`nav-header ${scrolled ? 'nav-scrolled' : ''}`}>

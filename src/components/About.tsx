@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Crosshair, Clock, Rocket, Gauge } from 'lucide-react';
+import { Crosshair, Clock} from 'lucide-react';
 
-const steps = ['Design', 'Code', 'Launch'];
+// const steps = ['Design', 'Code', 'Launch'];
 
 export const About: React.FC = () => {
   const sectionRef = useRef<HTMLElement>(null);
