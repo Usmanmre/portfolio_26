@@ -87,7 +87,7 @@ export const Projects: React.FC = () => {
       description: 'AI-driven SaaS platform that reads task activity and engagement patterns to flag burnout risk before it costs you a team member.',
       highlight: ['Next.js', 'Node.js', 'Predictive AI', 'Scalable Cloud Architectures'],
       metrics: 'Proactive Alert System',
-      link: 'https://www.forenex.org/',
+      // link: 'https://www.forenex.org/',
       details: [
         'Built a real-time platform that reads task activity, engagement, and workload signals to catch early burnout warning signs.',
         'Designed everyday task workflows to double as passive wellbeing monitors, with strict data privacy built in.',
