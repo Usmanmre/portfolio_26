@@ -37,7 +37,7 @@ const App: React.FC = () => {
   <Contact />
       </main>
 
-      <ChatWidget />
+      {/* <ChatWidget /> */}
 
       <style>{`
         .portfolio-app {

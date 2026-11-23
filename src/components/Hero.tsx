@@ -36,18 +36,16 @@ export const Hero: React.FC = () => {
         <div className="hero-content">
           <div className="badge hero-badge">
             <span className="live-dot" />
-            Websites & AI Tools for Real Estate + SaaS
+            FULL-STACK WEBSITES & CUSTOM AI SOLUTIONS
 
           </div>
 
           <h1 className="hero-title">
-            Websites & AI Tools That Help You <span className="title-accent">Sell More, Faster</span>
+            Websites & AI Tools That Help <span className="title-accent">Your Business Scale, Faster</span>
           </h1>
 
           <p className="hero-subtitle">
-            I build fast, reliable websites and AI-powered tools for real estate
-            and SaaS companies — so you get more leads, more sign-ups, and less
-            manual work. One person, start to finish: design, code, and launch.
+            I build fast, reliable websites and AI-powered tools for growing businesses — so you get more leads, higher conversions, and less manual work. One person, start to finish: design, code, and launch.
           </p>
 
           <div className="hero-actions">
@@ -83,10 +81,10 @@ export const Hero: React.FC = () => {
             <div className="floater-num">99.9%</div>
             <div className="floater-label">Uptime, Every Launch</div>
           </div>
-          <div className="metric-floater floater-2 glass-card">
+          {/* <div className="metric-floater floater-2 glass-card">
             <div className="floater-num">Real Estate</div>
             <div className="floater-label">+ SaaS Focus</div>
-          </div>
+          </div> */}
         </div>
       </div>
 

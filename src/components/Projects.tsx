@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Bot, Zap, Shield, Building2, ChevronDown, ArrowUpRight } from 'lucide-react';
+import { Bot, Zap, Shield, ChevronDown, ArrowUpRight } from 'lucide-react';
 
 interface Project {
   id: string;
   title: string;
-  category: 'saas' | 'ai-voice' | 'branding' | 'real-estate';
+  category: 'saas' | 'ai-voice' | 'branding';
   description: string;
   highlight: string[];
   metrics?: string;
@@ -17,7 +17,7 @@ const categoryMeta = {
   'saas': { label: 'SaaS Product', icon: Zap, className: 'cat-saas' },
   'ai-voice': { label: 'AI / Voice', icon: Bot, className: 'cat-ai-voice' },
   'branding': { label: 'Branding', icon: Shield, className: 'cat-branding' },
-  'real-estate': { label: 'Real Estate', icon: Building2, className: 'cat-real-estate' },
+  // 'real-estate': { label: 'Real Estate', icon: Building2, className: 'cat-real-estate' },
 } as const;
 
 export const Projects: React.FC = () => {
@@ -25,20 +25,20 @@ export const Projects: React.FC = () => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const projects: Project[] = [
-    {
-      id: 'real-estate-chatbot',
-      title: 'Forenex Real Estate — AI Chatbot for Listings',
-      category: 'real-estate',
-      description: 'An AI chatbot for real estate websites that answers buyer questions, qualifies leads, and books viewings — around the clock, no agent required.',
-      highlight: ['React.js', 'Node.js', 'OpenAI', 'Embeddings', 'Real-Time Chat'],
-      metrics: '24/7 Lead Capture',
-      link: 'https://real-estate.forenex.org/',
-      details: [
-        'Built a chatbot that understands questions about specific listings — price, location, features — and answers instantly instead of making buyers wait for an agent.',
-        'Set up lead qualification inside the chat, so agents only get pinged for buyers who are actually ready to move forward.',
-        'Connected the bot to booking so a serious buyer can schedule a viewing without leaving the conversation.',
-      ],
-    },
+    // {
+    //   id: 'real-estate-chatbot',
+    //   title: 'Forenex Real Estate — AI Chatbot for Listings',
+    //   category: 'real-estate',
+    //   description: 'An AI chatbot for real estate websites that answers buyer questions, qualifies leads, and books viewings — around the clock, no agent required.',
+    //   highlight: ['React.js', 'Node.js', 'OpenAI', 'Embeddings', 'Real-Time Chat'],
+    //   metrics: '24/7 Lead Capture',
+    //   link: 'https://real-estate.forenex.org/',
+    //   details: [
+    //     'Built a chatbot that understands questions about specific listings — price, location, features — and answers instantly instead of making buyers wait for an agent.',
+    //     'Set up lead qualification inside the chat, so agents only get pinged for buyers who are actually ready to move forward.',
+    //     'Connected the bot to booking so a serious buyer can schedule a viewing without leaving the conversation.',
+    //   ],
+    // },
     {
       id: 'nymbl',
       title: 'Nymbl — AI Voice Agent for Patient Booking',
@@ -135,7 +135,7 @@ export const Projects: React.FC = () => {
 
         {/* Filter Navigation */}
         <div className="project-filters flex-center">
-          {(['all', 'real-estate', 'saas', 'ai-voice'] as const).map((cat) => (
+          {(['all', 'saas', 'ai-voice'] as const).map((cat) => (
             <button
               key={cat}
               onClick={() => {
@@ -144,7 +144,7 @@ export const Projects: React.FC = () => {
               }}
               className={`filter-btn ${filter === cat ? 'active' : ''}`}
             >
-              {cat === 'all' ? 'All Projects' : cat === 'real-estate' ? 'Real Estate' : cat === 'saas' ? 'SaaS Products' : 'AI & Voice'}
+              {cat === 'all' ? 'All Projects' : cat === 'saas' ? 'SaaS Products' : 'AI & Voice'}
             </button>
           ))}
         </div>

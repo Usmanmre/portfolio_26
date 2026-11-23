@@ -166,7 +166,7 @@ useEffect(() => {
 
         {/* Action button status configuration */}
         <div className="agent-status-container">
-          {isConnected ? (
+          {/* {isConnected ? (
             <div className="active-call-badge">
               <span className="live-dot"></span>
               <span className="call-timer">{formatTime(callDuration)}</span>
@@ -196,7 +196,7 @@ useEffect(() => {
                 {isLoading ? 'Connecting...' : 'Talk to AI Agent'}
               </span>
             </button>
-          )}
+          )} */}
         </div>
 
       </div>
